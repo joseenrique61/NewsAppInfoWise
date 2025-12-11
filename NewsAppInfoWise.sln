@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsAppInfoWise", "NewsAppInfoWise\NewsAppInfoWise.csproj", "{8BDD1930-CB10-41D1-85C3-DDFB15390530}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8BDD1930-CB10-41D1-85C3-DDFB15390530}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BDD1930-CB10-41D1-85C3-DDFB15390530}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BDD1930-CB10-41D1-85C3-DDFB15390530}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BDD1930-CB10-41D1-85C3-DDFB15390530}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
