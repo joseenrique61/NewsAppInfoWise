@@ -1,8 +1,28 @@
-﻿@{
+﻿@using NewsAppInfoWise.Data
+@inject ApplicationDbContext Context
+
+@{
     ViewData["Title"] = "Home Page";
+    var newsPosts = Context.NewsPosts.OrderByDescending(n => n.PublishedAt).ToList();
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome to NewsAppInfoWise</h1>
+    <p>Read the latest news:</p>
+</div>
+
+<div class="row">
+    @foreach (var post in newsPosts)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@post.Title</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">@post.PublishedAt.ToShortDateString()</h6>
+                    <p class="card-text">@(post.Content.Length > 150 ? post.Content.Substring(0, 150) + "..." : post.Content)</p>
+                    <a asp-controller="News" asp-action="Details" asp-route-id="@post.Id" class="card-link">Read More</a>
+                </div>
+            </div>
+        </div>
+    }
 </div>

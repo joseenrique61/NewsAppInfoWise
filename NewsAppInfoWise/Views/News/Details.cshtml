@@ -1,0 +1,16 @@
+@model NewsAppInfoWise.Models.NewsPost
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1 class="title">@Model.Title</h1>
+
+<div class="body">
+    <hr />
+    <p class="date">Publicado el: @Model.PublishedAt</p>
+    <p class="content">@Model.Content</p>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
