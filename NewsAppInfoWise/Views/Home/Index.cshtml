@@ -18,7 +18,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">@post.Title</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">@post.PublishedAt.ToShortDateString()</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">@post.PublishedAt.ToString("dd/MM/yyyy")</h6>
                     <p class="card-text">@(post.Content.Length > 150 ? post.Content.Substring(0, 150) + "..." : post.Content)</p>
                     <a asp-controller="News" asp-action="Details" asp-route-id="@post.Id" class="card-link">Read More</a>
                 </div>
