@@ -1,0 +1,73 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches:
+      - "main"  # Se ejecuta al hacer push a la rama principal
+
+env:
+  # --- CONFIGURACIÓN ESPECÍFICA DE ESTE MICROSERVICIO (CAMBIAR EN CADA REPO) ---
+  AWS_REGION: us-east-2                   # La región donde creaste el cluster (ej. us-east-1)
+  ECR_REPOSITORY: infowise/news-app   # El nombre exacto de tu repo en ECR
+  ECS_SERVICE: news-app-service               # El nombre del Servicio que creaste en el Cluster
+  ECS_CLUSTER: InfoWise-Cluster           # El nombre de tu Cluster
+  ECS_TASK_DEFINITION: info-wise-news-app-task-definition  # El nombre de la Task Definition (Family)
+  CONTAINER_NAME: info-wise-news-app-container  # El nombre del contenedor DENTRO de la Task Definition
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }} # Usamos el hash del commit como tag para versión única
+        run: |
+          # Construye la imagen
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          # Etiqueta también como 'latest' para facilitar búsquedas manuales
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # Sube las imágenes a ECR
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # Guarda la referencia de la imagen para el siguiente paso
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Download current task definition
+        run: |
+          # Descarga la configuración actual de AWS para no perder variables de entorno ni volúmenes
+          aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} --query taskDefinition > task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true # Espera a que el despliegue termine y esté verde
