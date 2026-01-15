@@ -28,6 +28,17 @@ using (var scope = app.Services.CreateScope())
     scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
 }
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
