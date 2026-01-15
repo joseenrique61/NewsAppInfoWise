@@ -21,13 +21,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
-}
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -39,6 +32,13 @@ builder.Services.AddCors(options =>
         });
 });
 
+var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -49,6 +49,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseCors("AllowAll");
 
 app.UseRouting();
 
