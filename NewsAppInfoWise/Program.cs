@@ -21,6 +21,16 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 builder.Services.AddControllersWithViews();
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    
+    // IMPORTANTE para AWS/Docker: 
+    // Como las IPs internas cambian, debemos confiar en cualquiera que nos mande cabeceras
+    options.KnownNetworks.Clear(); 
+    options.KnownProxies.Clear();
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -47,12 +57,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+app.UseForwardedHeaders();
+app.UsePathBase("/news-app");
+
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseCors("AllowAll");
-
 app.UseRouting();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
