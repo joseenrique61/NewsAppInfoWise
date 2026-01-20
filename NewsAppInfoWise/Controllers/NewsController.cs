@@ -46,18 +46,18 @@ namespace NewsAppInfoWise.Controllers
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            return View();
+            var newsPost = new NewsPost { PublishedAt = DateTime.Today };
+            return View(newsPost);
         }
 
         // POST: News/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Title,Content")] NewsPost newsPost)
+        public async Task<IActionResult> Create([Bind("Id,Title,Content,PublishedAt")] NewsPost newsPost)
         {
             if (ModelState.IsValid)
             {
-                newsPost.PublishedAt = DateTime.Now;
                 _context.Add(newsPost);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
